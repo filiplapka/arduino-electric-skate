@@ -100,10 +100,13 @@ void compute_speed() {
   } 
   else if(millis() - last_read_time > 5000 && speed_set_to_zero == 0)  {
     lcd.setCursor(0,0);
+    lcd.print("             ");
+    lcd.setCursor(0,0);
     lcd.print("0 km/h");
     speed_set_to_zero = 1;
     } 
 }
+
 
 float compute_current_speed_in_km_h(float last_turn_time) {
   
@@ -116,6 +119,8 @@ float compute_current_speed_in_km_h(float last_turn_time) {
 
 void display_speed(float speed) {
   if (display_counter == 0) {
+    lcd.setCursor(0,0);
+    lcd.print("             ");
     lcd.setCursor(0,0);
     lcd.print(speed);
     lcd.print(" km/h");
