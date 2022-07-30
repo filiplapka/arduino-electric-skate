@@ -39,8 +39,6 @@ void setup()
   last_read_time = millis();
 
   Motor1.attach(MotorPin);
-  Motor1.writeMicroseconds(900);
-
      
   // initialize the LCD
   lcd.begin();
@@ -100,18 +98,16 @@ void read_bluetooth_drive_skate() {
     speed_of_car = 100;
   }
   else if(val == 'F'){
-    Serial.print("Going forward at ");
-    Serial.println(speed_of_car);
     Speed = map(speed_of_car, 0, 100, 30, 140);
+    Serial.print("Going forward at ");
+    Serial.println(Speed);    
     Motor1.write(Speed);  
   } 
   else if(val == 'B'){
-    Serial.print("Going backwards at");
+    Serial.print("Going backwards at ");
     Serial.println(speed_of_car);
   } else if(val == 'S'){
-    Serial.print("Going backwards at");
-    Motor1.writeMicroseconds(900);
-    Serial.println(speed_of_car);
+    Serial.println("Stop skate");
   }
 }
 
