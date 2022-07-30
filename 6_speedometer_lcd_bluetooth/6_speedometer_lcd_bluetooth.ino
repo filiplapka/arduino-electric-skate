@@ -63,74 +63,56 @@ void loop()
 
 void read_bluetooth_drive_skate() {
   while (BTSerial.available() == 0);
-  
+
   char val = BTSerial.read();
   Serial.println(val);
+  
   if(val == '0'){
     speed_of_car = 0;
-    go_forward();    
   } else if(val == '1'){
     speed_of_car = 10;
-    go_forward();    
   }
   else if(val == '2'){
     speed_of_car = 20;
-    go_forward();    
   }
   else if(val == '3'){
     speed_of_car = 30;
-    go_forward();    
   }
   else if(val == '4'){
     speed_of_car = 40;
-    go_forward();
   }
   else if(val == '5'){
     speed_of_car = 50;
-    go_forward();    
   }
   else if(val == '6'){
     speed_of_car = 60;
-    go_forward();    
   }
   else if(val == '7'){
     speed_of_car = 70;
-    go_forward();    
   }
   else if(val == '8'){
     speed_of_car = 80;
-    go_forward();
   }
   else if(val == '9'){
     speed_of_car = 90;
-    go_forward();
   }
   else if(val == 'q'){
     speed_of_car = 100;
-    go_forward();
   }
   else if(val == 'F'){
-    go_forward();
+    Serial.print("Going forward at ");
+    Serial.println(speed_of_car);
+    Speed = map(speed_of_car, 0, 100, 30, 140);
+    Motor1.write(Speed);  
   } 
   else if(val == 'B'){
     Serial.print("Going backwards at");
-    Motor1.writeMicroseconds(900);
     Serial.println(speed_of_car);
-  }   else if(val == 'S'){
+  } else if(val == 'S'){
     Serial.print("Going backwards at");
     Motor1.writeMicroseconds(900);
     Serial.println(speed_of_car);
   }
-}
-
-void go_forward() {
-    Serial.print("Going forward at");
-    Serial.println(speed_of_car);
-    Speed = map(speed_of_car, 0, 100, 30, 140);
-
-    Serial.print("Going forward at spped");
-    Serial.println(Speed);
-    Motor1.write(Speed);    
 }
 
 void read_bluetooth_display_led() {
