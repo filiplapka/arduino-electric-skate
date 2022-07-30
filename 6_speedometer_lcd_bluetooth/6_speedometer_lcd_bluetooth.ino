@@ -2,12 +2,16 @@
 #include <SoftwareSerial.h>   // librairie pour creer une nouvelle connexion serie max 9600 baud
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
+#include <Servo.h>
 #include <stdio.h>
 #include <string.h>
 #define PIN_LED 7
 #define Hall_Sensor_D 2
 #define Perimeter_in_km 0.0003
+#define MotorPin 5
 
+Servo Motor1;
+int Speed = 0;
 int hall_sensor_read=0;
 int number_turns = 0;
 int new_turn = 1;
@@ -16,6 +20,8 @@ float last_read_time;
 int display_counter = 3;
 int speed_set_to_zero = 0;
 float distance = 0;
+int speed_of_car = 0;
+int val = 0;
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 int number_of_blinks = 0;
@@ -32,7 +38,10 @@ void setup()
   pinMode(Hall_Sensor_D, INPUT);
   last_read_time = millis();
 
-    
+  Motor1.attach(MotorPin);
+  Motor1.writeMicroseconds(900);
+
+     
   // initialize the LCD
   lcd.begin();
 
@@ -43,14 +52,93 @@ void setup()
 
 void loop()
 {
-  compute_speed();
-  read_bluetooth_display_led();
+
+ //Motor1.writeMicroseconds(1100);
+  //delay(2000);
+  //Motor1.writeMicroseconds(1500);  
+  //compute_speed();
+  read_bluetooth_drive_skate();
+  
 }
 
+void read_bluetooth_drive_skate() {
+  while (BTSerial.available() == 0);
+  
+  char val = BTSerial.read();
+  Serial.println(val);
+    if(val == '0'){
+    speed_of_car = 10;
+  } else if(val == '1'){
+    speed_of_car = 10;
+  }
+  else if(val == '2'){
+    speed_of_car = 20;
 
+  }
+  else if(val == '3'){
+    speed_of_car = 30;
+  }
+  else if(val == '4'){
+    speed_of_car = 40;
+  }
+  else if(val == '5'){
+    speed_of_car = 50;
+  }
+  else if(val == '6'){
+    speed_of_car = 60;
+  }
+  else if(val == '7'){
+    speed_of_car = 70;
+  }
+  else if(val == '8'){
+    speed_of_car = 80;
+  }
+  else if(val == '9'){
+    speed_of_car = 90;
+  }
+  else if(val == 'q'){
+    speed_of_car = 100;
+  }
+  else if(val == 'F'){
+    Serial.print("Going forward at");
+    Serial.println(speed_of_car);
+    Speed = map(speed_of_car, 0, 100, 900, 2320);
+        Speed = map(speed_of_car, 0, 100, 40, 140);
+
+    Serial.print("Going forward at spped");
+    Serial.println(Speed);
+    Motor1.write(Speed);  
+
+    /*
+    delay(3000);
+    Motor1.writeMicroseconds(1300);  
+    delay(3000);
+        Motor1.writeMicroseconds(1500);  
+    delay(3000);
+        Motor1.writeMicroseconds(1700);  
+    delay(3000);
+        Motor1.writeMicroseconds(1900);  
+    delay(3000);
+        Motor1.writeMicroseconds(2100);  
+    delay(3000);
+        Motor1.writeMicroseconds(2300);  
+    delay(3000);
+    */
+        
+    Serial.println(Speed);
+  } 
+  else if(val == 'B'){
+    Serial.print("Going backwards at");
+    Motor1.writeMicroseconds(900);
+    Serial.println(speed_of_car);
+  }   else if(val == 'S'){
+    Serial.print("Going backwards at");
+    Motor1.writeMicroseconds(900);
+    Serial.println(speed_of_car);
+  }
+}
 
 void read_bluetooth_display_led() {
-
   String message;
   number_of_blinks = 0;
     while (BTSerial.available()){
