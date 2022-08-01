@@ -5,40 +5,47 @@
 #include <Servo.h>
 #include <stdio.h>
 #include <string.h>
-#define PIN_LED 7
-#define Hall_Sensor_D 2
-#define Perimeter_in_km 0.0003
-#define MotorPin 5
 
-Servo Motor1;
-int Speed = 0;
+#define DIGITAL_HALL_SENSOR_PIN 2
+#define PERIMETER_OF_WHEEL_IN_KM 0.0003
+#define DIGITAL_MOTOR_PIN 5
+
+//Configuration of skate engine
+Servo skate_motor;
+
+//Configuraion of LCD display
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+//Configuration of bluetooth
+SoftwareSerial BTSerial(10, 11); // RX | TX  = > BT-TX=10 BT-RX=11
+
+int computed_skate_requested_speed = 0;
 int hall_sensor_read=0;
 int number_turns = 0;
-int new_turn = 1;
 float current_speed;
-float last_read_time;
+float hall_sensor_last_read_time;
 int display_counter = 3;
 int speed_set_to_zero = 0;
 float distance = 0;
-int speed_of_car = 0;
-int val = 0;
+int speed_requested_by_bluetooth = 0;
 
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-int number_of_blinks = 0;
 
-SoftwareSerial BTSerial(10, 11); // RX | TX  = > BT-TX=10 BT-RX=11
-
+//This method is called when Arduino is started
 void setup()
 {
+  //Initialize display on a computer screen (Serial monitor)
   Serial.begin(9600);
-  Serial.println("Enter a command:");
-  BTSerial.begin(9600);  // HC-05 9600 baud 
 
-  pinMode(PIN_LED, OUTPUT);
-  pinMode(Hall_Sensor_D, INPUT);
-  last_read_time = millis();
+  //Initialize connection with a bluetooth 
+  BTSerial.begin(9600);
 
-  Motor1.attach(MotorPin);
+  //Connect to a digital pin reading data from hall sensor
+  pinMode(DIGITAL_HALL_SENSOR_PIN, INPUT);
+  
+  hall_sensor_last_read_time = millis();
+
+  //Connect to engine
+  skate_motor.attach(DIGITAL_MOTOR_PIN);
      
   // initialize the LCD
   lcd.begin();
@@ -57,126 +64,98 @@ void loop()
   }
 }
 
-
-void Speed_and_direction(){
-    Speed = map(speed_of_car, 0, 100, 30, 140);
+void Speed_and_direction(int requestedSpeed){
+    computed_skate_requested_speed = map(requestedSpeed, 0, 100, 30, 140);
     Serial.print("Going forward at ");
-    Serial.println(Speed);    
-    Motor1.write(Speed);  
+    Serial.println(computed_skate_requested_speed);    
+    skate_motor.write(computed_skate_requested_speed);  
 }
     
 void read_bluetooth_drive_skate() {
-  char val = BTSerial.read();
-  Serial.println(val);
+  char bluetooth_request = BTSerial.read();
+  Serial.println(bluetooth_request);
   
-  if(val == '0'){
-    speed_of_car = 0;
-    Speed_and_direction();
+  if(bluetooth_request == '0'){
+    speed_requested_by_bluetooth = 0;
+    Speed_and_direction(speed_requested_by_bluetooth);
   } 
-  else if(val == '1'){
-    speed_of_car = 10;
-    Speed_and_direction();
+  else if(bluetooth_request == '1'){
+    speed_requested_by_bluetooth = 10;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-  else if(val == '2'){
-    speed_of_car = 20;
-    Speed_and_direction();
+  else if(bluetooth_request == '2'){
+    speed_requested_by_bluetooth = 20;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-  else if(val == '3'){
-    speed_of_car = 30;
-    Speed_and_direction();
+  else if(bluetooth_request == '3'){
+    speed_requested_by_bluetooth = 30;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-  else if(val == '4'){
-    speed_of_car = 40;
-    Speed_and_direction();
+  else if(bluetooth_request == '4'){
+    speed_requested_by_bluetooth = 40;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-  else if(val == '5'){
-    speed_of_car = 50;
-    Speed_and_direction();
+  else if(bluetooth_request == '5'){
+    speed_requested_by_bluetooth = 50;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-  else if(val == '6'){
-    speed_of_car = 60;
-    Speed_and_direction();
+  else if(bluetooth_request == '6'){
+    speed_requested_by_bluetooth = 60;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-  else if(val == '7'){
-    speed_of_car = 70;
-    Speed_and_direction(); 
+  else if(bluetooth_request == '7'){
+    speed_requested_by_bluetooth = 70;
+    Speed_and_direction(speed_requested_by_bluetooth); 
   }
-  else if(val == '8'){
-    speed_of_car = 80;
-    Speed_and_direction();
+  else if(bluetooth_request == '8'){
+    speed_requested_by_bluetooth = 80;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-  else if(val == '9'){
-    speed_of_car = 90;
-    Speed_and_direction();
+  else if(bluetooth_request == '9'){
+    speed_requested_by_bluetooth = 90;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-  else if(val == 'q'){
-    speed_of_car = 100;
-    Speed_and_direction();
+  else if(bluetooth_request == 'q'){
+    speed_requested_by_bluetooth = 100;
+    Speed_and_direction(speed_requested_by_bluetooth);
   }
-}
-
-void read_bluetooth_display_led() {
-  String message;
-  number_of_blinks = 0;
-    while (BTSerial.available()){
-      message = BTSerial.readString();
-      Serial.println(message);
-    }
-    while (Serial.available()){
-      message = Serial.readString();
-      BTSerial.println(message);
-    }
-    if(message == "on\r\n"){
-      digitalWrite(PIN_LED,HIGH);
-    }// else if message off
-    else if(message == "off\r\n"){
-      digitalWrite(PIN_LED,LOW);
-    }
-    else if(message == "blink\r\n"){
-      while(number_of_blinks < 5){
-        digitalWrite(PIN_LED, HIGH);
-        delay(1000);
-        digitalWrite(PIN_LED, LOW);
-        delay(1000);
-        number_of_blinks += 1;
-      }
-    }
 }
 
 void compute_speed() {
   float last_turn_time;
-  hall_sensor_read = digitalRead(Hall_Sensor_D);
+  hall_sensor_read = digitalRead(DIGITAL_HALL_SENSOR_PIN);
   
-  if(millis() - last_read_time > 70 && hall_sensor_read){ //100 milisec debouncing 
+  if(millis() - hall_sensor_last_read_time > 70 && hall_sensor_read){ //Wait 70 miliseconds before reading sensor again
+     
     lcd.setCursor(0,0),
     number_turns += 1;
     Serial.println(number_turns);
-    distance += Perimeter_in_km;
+    distance += PERIMETER_OF_WHEEL_IN_KM;
     lcd.setCursor(0,1);
     lcd.print(distance);
     lcd.print(" km");
-    last_turn_time = millis() - last_read_time;
+    last_turn_time = millis() - hall_sensor_last_read_time;
     float current_speed = compute_current_speed_in_km_h(last_turn_time);
     Serial.println(current_speed);
-    last_read_time = millis();
+    hall_sensor_last_read_time = millis();
     display_counter--;
     speed_set_to_zero = 0;
     display_speed(current_speed);
   } 
-  else if(millis() - last_read_time > 5000 && speed_set_to_zero == 0)  {
+  else if(millis() - hall_sensor_last_read_time > 5000 && speed_set_to_zero == 0)  {
     lcd.setCursor(0,0);
     lcd.print("             ");
     lcd.setCursor(0,0);
     lcd.print("0 km/h");
     speed_set_to_zero = 1;
-    }
+  }
 }
 
 
 float compute_current_speed_in_km_h(float last_turn_time) {
   
   float last_turn_time_in_h = last_turn_time/3600000;
-  current_speed = Perimeter_in_km / last_turn_time_in_h;
+  current_speed = PERIMETER_OF_WHEEL_IN_KM / last_turn_time_in_h;
 
   return (current_speed);
 }
