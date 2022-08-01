@@ -50,64 +50,68 @@ void setup()
 
 void loop()
 {
-
- //Motor1.writeMicroseconds(1100);
-  //delay(2000);
-  //Motor1.writeMicroseconds(1500);  
-  //compute_speed();
-  read_bluetooth_drive_skate();
-  
+  compute_speed();
+    
+  while (BTSerial.available()) {    
+    read_bluetooth_drive_skate();
+  }
 }
 
-void read_bluetooth_drive_skate() {
-  while (BTSerial.available() == 0);
 
+void Speed_and_direction(){
+    Speed = map(speed_of_car, 0, 100, 30, 140);
+    Serial.print("Going forward at ");
+    Serial.println(Speed);    
+    Motor1.write(Speed);  
+}
+    
+void read_bluetooth_drive_skate() {
   char val = BTSerial.read();
   Serial.println(val);
   
   if(val == '0'){
     speed_of_car = 0;
-  } else if(val == '1'){
+    Speed_and_direction();
+  } 
+  else if(val == '1'){
     speed_of_car = 10;
+    Speed_and_direction();
   }
   else if(val == '2'){
     speed_of_car = 20;
+    Speed_and_direction();
   }
   else if(val == '3'){
     speed_of_car = 30;
+    Speed_and_direction();
   }
   else if(val == '4'){
     speed_of_car = 40;
+    Speed_and_direction();
   }
   else if(val == '5'){
     speed_of_car = 50;
+    Speed_and_direction();
   }
   else if(val == '6'){
     speed_of_car = 60;
+    Speed_and_direction();
   }
   else if(val == '7'){
     speed_of_car = 70;
+    Speed_and_direction(); 
   }
   else if(val == '8'){
     speed_of_car = 80;
+    Speed_and_direction();
   }
   else if(val == '9'){
     speed_of_car = 90;
+    Speed_and_direction();
   }
   else if(val == 'q'){
     speed_of_car = 100;
-  }
-  else if(val == 'F'){
-    Speed = map(speed_of_car, 0, 100, 30, 140);
-    Serial.print("Going forward at ");
-    Serial.println(Speed);    
-    Motor1.write(Speed);  
-  } 
-  else if(val == 'B'){
-    Serial.print("Going backwards at ");
-    Serial.println(speed_of_car);
-  } else if(val == 'S'){
-    Serial.println("Stop skate");
+    Speed_and_direction();
   }
 }
 
@@ -165,7 +169,7 @@ void compute_speed() {
     lcd.setCursor(0,0);
     lcd.print("0 km/h");
     speed_set_to_zero = 1;
-    } 
+    }
 }
 
 
