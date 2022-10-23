@@ -19,7 +19,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 //Configuration of bluetooth
 SoftwareSerial BTSerial(10, 11); // RX | TX  = > BT-TX=10 BT-RX=11
 
-int computed_skate_requested_speed = 0;
+int computed_skate_requested_speed = 30;
 int hall_sensor_read=0;
 int number_turns = 0;
 float current_speed;
@@ -46,6 +46,7 @@ void setup()
 
   //Connect to engine
   skate_motor.attach(DIGITAL_MOTOR_PIN);
+   skate_motor.write(computed_skate_requested_speed);
      
   // initialize the LCD
   lcd.begin();
