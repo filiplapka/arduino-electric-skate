@@ -28,6 +28,7 @@ int display_counter = 3;
 int speed_set_to_zero = 0;
 float distance = 0;
 int speed_requested_by_bluetooth = 0;
+int delay_time_when_computing_speed = 250;
 
 
 //This method is called when Arduino is started
@@ -46,7 +47,7 @@ void setup()
 
   //Connect to engine
   skate_motor.attach(DIGITAL_MOTOR_PIN);
-   skate_motor.write(computed_skate_requested_speed);
+  skate_motor.write(computed_skate_requested_speed);
      
   // initialize the LCD
   lcd.begin();
@@ -58,6 +59,7 @@ void setup()
 
 void loop()
 {
+  compute_delay_time_for_speed_computation();
   compute_speed();
     
   while (BTSerial.available()) {    
@@ -69,7 +71,7 @@ void Speed_and_direction(int requestedSpeed){
     computed_skate_requested_speed = map(requestedSpeed, 0, 100, 30, 140);
     Serial.print("Going forward at ");
     Serial.println(computed_skate_requested_speed);    
-    skate_motor.write(computed_skate_requested_speed);  
+    skate_motor.write(computed_skate_requested_speed);    
 }
     
 void read_bluetooth_drive_skate() {
@@ -126,7 +128,7 @@ void compute_speed() {
   float last_turn_time;
   hall_sensor_read = digitalRead(DIGITAL_HALL_SENSOR_PIN);
   
-  if(millis() - hall_sensor_last_read_time > 70 && hall_sensor_read){ //Wait 70 miliseconds before reading sensor again
+  if(millis() - hall_sensor_last_read_time > delay_time_when_computing_speed && hall_sensor_read){ //Wait 70 miliseconds before reading sensor again
      
     lcd.setCursor(0,0),
     number_turns += 1;
@@ -148,7 +150,44 @@ void compute_speed() {
     lcd.print("             ");
     lcd.setCursor(0,0);
     lcd.print("0 km/h");
+    lcd.setCursor(0,1);
+    lcd.print(distance);
+    lcd.print(" km");    
+    current_speed = 0;
     speed_set_to_zero = 1;
+  }
+}
+
+void compute_delay_time_for_speed_computation() {
+  if (current_speed < 2) {
+    delay_time_when_computing_speed = 200;
+    Serial.print("1 delay time is ");
+    Serial.println( delay_time_when_computing_speed);  
+  }
+  else if (current_speed >= 2 && current_speed < 5) {
+    delay_time_when_computing_speed = 150;
+    Serial.print("2 delay time is ");
+    Serial.println( delay_time_when_computing_speed); 
+  }  
+  else if (current_speed >= 5 && current_speed < 10) {
+    delay_time_when_computing_speed = 90;
+    Serial.print("2 delay time is ");
+    Serial.println( delay_time_when_computing_speed); 
+  }
+  else if (current_speed >= 10 && current_speed < 15) {
+    delay_time_when_computing_speed = 60;
+    Serial.print("3 delay time is ");
+    Serial.println( delay_time_when_computing_speed); 
+  }
+  else if (current_speed >= 15 && current_speed < 20) {
+    delay_time_when_computing_speed = 40;
+    Serial.print("4 delay time is ");
+    Serial.println( delay_time_when_computing_speed); 
+  }  
+  else if (current_speed >= 20) {
+    delay_time_when_computing_speed = 15;
+    Serial.print("5 delay time is ");
+    Serial.println( delay_time_when_computing_speed); 
   }
 }
 
